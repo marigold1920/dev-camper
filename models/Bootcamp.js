@@ -113,9 +113,9 @@ BootcampSchema.pre("save", async function (next) {
     const location = await geocoder.geocode(this.address);
     this.location = {
         type: "Point",
-        coordinates: [location[0].longtitude, location[0].latitude],
+        coordinates: [location[0].longitude, location[0].latitude],
         formattedAddress: location[0].formattedAddress,
-        street: location[0].street,
+        street: location[0].streetName,
         city: location[0].city,
         state: location[0].stateCode,
         zipcode: location[0].zipcode,
