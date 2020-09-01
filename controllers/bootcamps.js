@@ -9,10 +9,43 @@ const geocoder = require("../utils/geocoder");
  * @access Public
  */
 exports.getBootcamps = asyncHanlder(async (request, response) => {
-    const bootcamps = await Bootcamp.find();
+    const requestQuery = { ...request.query };
+    const page = parseInt(requestQuery.page) || 1;
+    const limit = parseInt(requestQuery.limit) || 10;
+    const offset = (page - 1) * limit;
+    const removeFields = ["select", "sort", "page", "limit"];
+
+    removeFields.forEach(param => delete requestQuery[param]);
+
+    let queryString = JSON.stringify(requestQuery).replace(
+        /\b(gt|gte|lt|lte|in)\b/g,
+        match => `$${match}`
+    );
+
+    let query = Bootcamp.find(JSON.parse(queryString));
+
+    // FIltering fields
+    if (request.query.select) {
+        const fields = request.query.select.split(",").join(" ");
+        query = query.select(fields);
+    }
+
+    // Sort all bootcamps
+    if (request.query.sort) {
+        const sortedBys = request.query.sort.split(",").join(" ");
+        query = query.sort(sortedBys);
+    } else {
+        query = query.sort("-createdAt");
+    }
+
+    // Pagination
+    query = query.skip(offset).limit(limit);
+
+    const bootcamps = await query;
 
     response.status(200).json({
         success: true,
+        count: bootcamps.length,
         data: bootcamps
     });
 });
