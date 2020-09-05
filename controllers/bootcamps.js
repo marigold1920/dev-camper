@@ -22,7 +22,7 @@ exports.getBootcamps = asyncHanlder(async (request, response) => {
         match => `$${match}`
     );
 
-    let query = Bootcamp.find(JSON.parse(queryString));
+    let query = Bootcamp.find(JSON.parse(queryString)).populate("courses");
 
     // FIltering fields
     if (request.query.select) {
@@ -57,7 +57,7 @@ exports.getBootcamps = asyncHanlder(async (request, response) => {
  * @access Public
  */
 exports.getBootcamp = asyncHanlder(async (request, response) => {
-    const bootcamp = await Bootcamp.findById(request.params.id);
+    const bootcamp = await Bootcamp.findById(request.params.id).populate("courses");
 
     response.status(200).json({
         success: true,
@@ -105,7 +105,9 @@ exports.updateBootcamp = asyncHanlder(async (request, response) => {
  * @access Private
  */
 exports.deleteBootcamp = asyncHanlder(async (request, response) => {
-    const bootcamp = await Bootcamp.findByIdAndDelete(request.params.id);
+    const bootcamp = await Bootcamp.findById(request.params.id);
+
+    bootcamp.remove();
 
     response.status(200).json({
         success: true,

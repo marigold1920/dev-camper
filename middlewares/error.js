@@ -3,7 +3,7 @@ const ErrorResponse = require("../utils/errorResponse");
 const errorHandler = (error, request, response, next) => {
     console.log(error);
     // Mongo bad Object Id
-    let errorObject;
+    let errorObject = { ...error };
     if (error.name === "CastError") {
         const message = `Resource not found with id of ${error.value}`;
         errorObject = new ErrorResponse(message, 404);
